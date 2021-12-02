@@ -90,9 +90,6 @@ CREATE TABLE IF NOT EXISTS `Flight` (
     `business_fare` float,
     `economy_fare` float,
     `first_class_fare` float,
-    `business_seats_available` int unsigned DEFAULT 0,
-    `economy_seats_available` int unsigned DEFAULT 0,
-    `first_class_seats_available` int unsigned DEFAULT 0,
     PRIMARY KEY (`airline_id`, `flight_number`),
     FOREIGN KEY (`airline_id`) REFERENCES `Airline` (`id`),
     FOREIGN KEY (`aircraft_number`) REFERENCES `Owns_aircraft` (`aircraft_number`),
@@ -103,23 +100,43 @@ CREATE TABLE IF NOT EXISTS `Flight` (
 insert into Flight (airline_id, flight_number, aircraft_number, 
 depart_airport_id, destination_airport_id, 
 departure_time, arrival_time, duration, 
-business_fare, economy_fare, first_class_fare, 
-business_seats_available, economy_seats_available, first_class_seats_available) 
+business_fare, economy_fare, first_class_fare) 
 values ('AA', 1, 1, 
 'JFK', 'EWR', 
 '10:00:00', '12:00:00', 2,
-100.00, 200.00, 300.00, 
-2, 2, 2);
+100.00, 200.00, 300.00);
 insert into Flight (airline_id, flight_number, aircraft_number, 
 depart_airport_id, destination_airport_id, 
 departure_time, arrival_time, duration, 
-business_fare, economy_fare, first_class_fare, 
-business_seats_available, economy_seats_available, first_class_seats_available) 
+business_fare, economy_fare, first_class_fare) 
 values ('UA', 3, 2, 
 'EWR', 'LGA', 
 '13:00:00', '14:00:00', 1,
-100.00, 200.00, 300.00, 
-3, 3, 3);
+100.00, 200.00, 300.00);
+insert into Flight (airline_id, flight_number, aircraft_number, 
+depart_airport_id, destination_airport_id, 
+departure_time, arrival_time, duration, 
+business_fare, economy_fare, first_class_fare) 
+values ('UA', 1, 1, 
+'JFK', 'EWR', 
+'10:00:00', '12:00:00', 2,
+100.00, 200.00, 300.00);
+insert into Flight (airline_id, flight_number, aircraft_number, 
+depart_airport_id, destination_airport_id, 
+departure_time, arrival_time, duration, 
+business_fare, economy_fare, first_class_fare) 
+values ('UA', 2, 1, 
+'JFK', 'EWR', 
+'10:00:00', '12:00:00', 2,
+100.00, 200.00, 300.00);
+insert into Flight (airline_id, flight_number, aircraft_number, 
+depart_airport_id, destination_airport_id, 
+departure_time, arrival_time, duration, 
+business_fare, economy_fare, first_class_fare) 
+values ('UA', 4, 1, 
+'JFK', 'EWR', 
+'10:00:00', '12:00:00', 2,
+100.00, 200.00, 300.00);
 
 CREATE TABLE IF NOT EXISTS `Operation_days` (
 	`airline_id` char(2) NOT NULL,
@@ -145,14 +162,8 @@ CREATE TABLE IF NOT EXISTS `International` (
     PRIMARY KEY (`airline_id`, `flight_number`),
     FOREIGN KEY (`airline_id`, `flight_number`) REFERENCES `Flight` (`airline_id`, `flight_number`)
 );
-CREATE TABLE IF NOT EXISTS `Waiting_list` (
-	`airline_id` char(2) NOT NULL,
-    `flight_number` int unsigned NOT NULL,
-    `account_num` int unsigned NOT NULL,
-    PRIMARY KEY (`airline_id`, `flight_number`, `account_num`),
-    FOREIGN KEY (`airline_id`, `flight_number`) REFERENCES `Flight` (`airline_id`, `flight_number`),
-    FOREIGN KEY (`account_num`) REFERENCES `Customer` (`account_num`)
-);
+
+
 CREATE TABLE IF NOT EXISTS `Reserve_ticket` (
 	`ticket_number` int unsigned NOT NULL,
     `account_num` int unsigned NOT NULL,
@@ -163,8 +174,8 @@ CREATE TABLE IF NOT EXISTS `Reserve_ticket` (
     PRIMARY KEY (`ticket_number`),
 	FOREIGN KEY (`account_num`) REFERENCES `Customer` (`account_num`)
 );
-insert into Reserve_ticket (ticket_number, account_num, class, purchase_time, total_fare, booking_fee)
-values (1, 3, 'business', '2021-11-30 22:51:00', 100.00, 10.00);
+insert into Reserve_ticket (ticket_number, account_num, class, purchase_time, total_fare, booking_fee) values (1, 3, 'business', '2021-11-30 22:51:00', 100.00, 10.00);
+insert into Reserve_ticket (ticket_number, account_num, class, purchase_time, total_fare, booking_fee) values (5, 3, 'business', '2021-11-30 22:51:00', 100.00, 10.00);
 
 CREATE TABLE IF NOT EXISTS `Portfolio` (
 	`ticket_number` int unsigned NOT NULL,
@@ -172,23 +183,52 @@ CREATE TABLE IF NOT EXISTS `Portfolio` (
     PRIMARY KEY (`ticket_number`),
     FOREIGN KEY (`ticket_number`) REFERENCES `Reserve_ticket` (`ticket_number`),
     FOREIGN KEY (`account_num`) REFERENCES `Customer` (`account_num`)
-);
+); 
 insert into Portfolio (ticket_number, account_num) values (1, 3);
+
+CREATE TABLE IF NOT EXISTS `Flight_instance` (
+	`airline_id` char(2) NOT NULL,
+    `flight_number` int unsigned NOT NULL,
+    `departure_date` date,
+	`business_seats_available` int unsigned DEFAULT 0,
+    `economy_seats_available` int unsigned DEFAULT 0,
+    `first_class_seats_available` int unsigned DEFAULT 0,
+    PRIMARY KEY (`airline_id`, `flight_number`, `departure_date`),
+    FOREIGN KEY (`airline_id`, `flight_number`) REFERENCES `Flight` (`airline_id`, `flight_number`)
+);
+
+insert into Flight_instance (airline_id, flight_number, departure_date, business_seats_available, economy_seats_available, first_class_seats_available) 
+	values ('AA', 1, '2021-12-1', 1, 2, 3);
+insert into Flight_instance (airline_id, flight_number, departure_date, business_seats_available, economy_seats_available, first_class_seats_available)
+	values ('UA', 3, '2021-12-1', 3, 4, 5);
+insert into Flight_instance (airline_id, flight_number, departure_date, business_seats_available, economy_seats_available, first_class_seats_available)
+	values ('UA', 2, '2021-12-3', 3, 4, 0);
+    
+CREATE TABLE IF NOT EXISTS `Waiting_list` (
+	`airline_id` char(2) NOT NULL,
+    `flight_number` int unsigned NOT NULL,
+    `departure_date` date NOT NULL,
+    `account_num` int unsigned NOT NULL,
+    `class` varchar(50),
+    PRIMARY KEY (`airline_id`, `flight_number`, `departure_date`, `account_num`),
+    FOREIGN KEY (`airline_id`, `flight_number`, `departure_date`) REFERENCES `Flight_instance` (`airline_id`, `flight_number`, `departure_date`),
+    FOREIGN KEY (`account_num`) REFERENCES `Customer` (`account_num`)
+);
+
+insert into waiting_list (airline_id, flight_number, departure_date, account_num, class) values ('AA', 1, '2021-12-01', 3, 'first_class');
 
 CREATE TABLE IF NOT EXISTS `Includes` (
 	`airline_id` char(2) NOT NULL,
     `flight_number` int unsigned NOT NULL,
+    `departure_date` date,
     `ticket_number` int unsigned NOT NULL,
-    `departure_datetime` datetime,
     `seat_number` int unsigned,
-    FOREIGN KEY (`airline_id`, `flight_number`) REFERENCES `Flight` (`airline_id`, `flight_number`),
+    FOREIGN KEY (`airline_id`, `flight_number`, `departure_date`) REFERENCES `Flight_instance` (`airline_id`, `flight_number`, `departure_date`),
     FOREIGN KEY (`ticket_number`) REFERENCES `Reserve_ticket` (`ticket_number`)
 );
-insert into Includes (airline_id, flight_number, ticket_number, departure_datetime, seat_number)
-values ('AA', 1, 1, '2021-12-1 10:00:00', 1);
 
-insert into Includes (airline_id, flight_number, ticket_number, departure_datetime, seat_number)
-values ('UA', 3, 1, '2021-12-1 13:00:00', 3);
+insert into Includes (airline_id, flight_number, ticket_number, departure_date, seat_number) values ('AA', 1, 1, '2021-12-1', 1);
+insert into Includes (airline_id, flight_number, ticket_number, departure_date, seat_number) values ('UA', 3, 1, '2021-12-1', 3);
 
 CREATE TABLE IF NOT EXISTS `One_way` (
 	`ticket_number` int unsigned NOT NULL,
@@ -200,12 +240,10 @@ CREATE TABLE IF NOT EXISTS `Round_trip` (
     PRIMARY KEY (`ticket_number`),
 	FOREIGN KEY (`ticket_number`) REFERENCES `Reserve_ticket` (`ticket_number`)
 );
-
 CREATE TABLE IF NOT EXISTS `Question` (
 	`question_text` varchar(255),
     PRIMARY KEY (`question_text`)
 );
-
 CREATE TABLE IF NOT EXISTS `Answer` (
 	`question_text` varchar(255) NOT NULL,
     `answer_text` varchar(255) NOT NULL,
@@ -218,4 +256,3 @@ insert into Answer(question_text, answer_text) values ("How do I book a flight?"
 insert into Question(question_text) values ("How much is a ticket?");
 insert into Answer(question_text, answer_text) values ("How much is a ticket?", "Depends on the flight but ranges from $100-$1000");
 insert into Question(question_text) values ('Is there a plane to my location?');
-

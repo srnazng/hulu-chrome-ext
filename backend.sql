@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS `Portfolio` (
 	`ticket_number` int unsigned NOT NULL,
     `account_num` int unsigned,
     PRIMARY KEY (`ticket_number`),
-    FOREIGN KEY (`ticket_number`) REFERENCES `Reserve_ticket` (`ticket_number`),
+    FOREIGN KEY (`ticket_number`) REFERENCES `Reserve_ticket` (`ticket_number`) on delete cascade,
     FOREIGN KEY (`account_num`) REFERENCES `Customer` (`account_num`)
 ); 
 insert into Portfolio (ticket_number, account_num) values (1, 3);
@@ -224,7 +224,7 @@ CREATE TABLE IF NOT EXISTS `Includes` (
     `ticket_number` int unsigned NOT NULL,
     `seat_number` int unsigned,
     FOREIGN KEY (`airline_id`, `flight_number`, `departure_date`) REFERENCES `Flight_instance` (`airline_id`, `flight_number`, `departure_date`),
-    FOREIGN KEY (`ticket_number`) REFERENCES `Reserve_ticket` (`ticket_number`)
+    FOREIGN KEY (`ticket_number`) REFERENCES `Reserve_ticket` (`ticket_number`) on delete cascade
 );
 
 insert into Includes (airline_id, flight_number, ticket_number, departure_date, seat_number) values ('AA', 1, 1, '2021-12-1', 1);
@@ -250,9 +250,9 @@ CREATE TABLE IF NOT EXISTS `Answer` (
     PRIMARY KEY (`question_text`, `answer_text`),
     FOREIGN KEY (`question_text`) REFERENCES `Question`(`question_text`)
 );
-
 insert into Question(question_text) values ("How do I book a flight?");
 insert into Answer(question_text, answer_text) values ("How do I book a flight?", "Go to the Flights tab");
 insert into Question(question_text) values ("How much is a ticket?");
 insert into Answer(question_text, answer_text) values ("How much is a ticket?", "Depends on the flight but ranges from $100-$1000");
 insert into Question(question_text) values ('Is there a plane to my location?');
+

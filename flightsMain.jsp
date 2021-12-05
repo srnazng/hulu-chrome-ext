@@ -154,6 +154,7 @@
 	public String getDay(String date){
 		LocalDate localDate = LocalDate.parse(date);
 	    DayOfWeek dayOfWeek = DayOfWeek.from(localDate);
+	    
 	    return dayOfWeek.name();
 	}
 	
@@ -414,7 +415,6 @@
 					//Filter by relative date
 					LocalDate toDate = getDate(toPath.get(0).d, date);
 					LocalDate fromDate = getDate(fromPath.get(0).d, returnDate);
-
 					if (fromDate.isBefore(toDate)){
 						//System.out.println("earlier");
 						continue;
@@ -466,6 +466,45 @@
 			
 			return Filtered;
 		}
+		catch(Exception e){
+			System.out.println(e);
+			ArrayList<ArrayList<Flight>> filtered = new ArrayList<ArrayList<Flight>>();
+			return filtered;
+		}
+	}
+	
+	//Filter to see if flightinstance exists
+	public ArrayList<ArrayList<Flight>> filterInstance(ArrayList<ArrayList<Flight>> paths, 
+			String departDate, String returnDate, Connection con){
+		
+		try{
+			ArrayList<ArrayList<Flight>> filtered = new ArrayList<ArrayList<Flight>>();
+			
+			for (ArrayList<Flight> path : paths){
+				boolean ok = true;
+				for (Flight f : path){
+					String date = "";
+					if (!f.ret){
+						date = getDate(f.d, departDate).toString();
+					}
+					else{
+						date = getDate(f.d, returnDate).toString();
+					}
+					
+					//see if flight exists in flight instance 
+					Statement stmt = con.createStatement();
+					String query = "Select * from Flight_instance where airline_id = \"" + f.a + "\" " 
+							+ " and flight_number = \"" + f.n + "\" and departure_date = \"" + date + "\" ";
+					
+					System.out.println(query);
+					ResultSet result = stmt.executeQuery(query);
+					if (result.next()) filtered.add(path);
+				}
+			}
+			
+			return filtered;
+		}
+		
 		catch(Exception e){
 			System.out.println(e);
 			ArrayList<ArrayList<Flight>> filtered = new ArrayList<ArrayList<Flight>>();
@@ -535,7 +574,6 @@
 		String classType = request.getParameter("classType");
 		//out.println(classType);
 		
-
 	%>
 	
 
@@ -565,24 +603,24 @@
 					<td><input type="radio" name="sortType" value="takeoff" <%if(sortType.equals("takeoff")){%>checked<%}%>/>Takeoff Time</td>
 				</tr>
 				<tr>
-					<td>Flexible Date</td><td><input type="checkbox" name="flexibleDate" <%if(flexibleDate != null){%>checked<%}%>></td>
-					<td>Earliest Takeoff</td><td><input type="time" name="earliestTakeoff" value=<%=earliestTakeoff%>></td>
+					<td>Flexible Date </td><td><input type="checkbox" name="flexibleDate" <%if(flexibleDate != null){%>checked<%}%>></td>
+					<td>Earliest Takeoff (HH:MM)</td><td><input type="time" name="earliestTakeoff" value=<%=earliestTakeoff%>></td>
 					<td><input type="radio" name="sortType" value="arrival" <%if(sortType.equals("arrival")){%>checked<%}%>/>Arrival Time</td>
 				</tr>
 				<tr>
-					<td>Departure Date</td><td><input type="date" name="departDate" value=<%=departDate%>></td>
-					<td>Latest Takeoff</td><td><input type="time" name="latestTakeoff" value=<%=latestTakeoff%>></td>
+					<td>Departure Date (YYYY-MM-DD)</td><td><input type="date" name="departDate" value=<%=departDate%>></td>
+					<td>Latest Takeoff (HH:MM)</td><td><input type="time" name="latestTakeoff" value=<%=latestTakeoff%>></td>
 					<td><input type="radio" name="sortType" value="duration" <%if(sortType.equals("duration")){%>checked<%}%>/>Flight Duration</td>
 				</tr>
 				<tr>
-					<td>Return Date</td><td><input type="date" name="returnDate" value=<%=returnDate%>></td>
-					<td>Earliest Arrival</td><td><input type="time" name="earliestArrival" value=<%=earliestArrival%>></td>
+					<td>Return Date (YYYY-MM-DD)</td><td><input type="date" name="returnDate" value=<%=returnDate%>></td>
+					<td>Earliest Arrival (HH:MM)</td><td><input type="time" name="earliestArrival" value=<%=earliestArrival%>></td>
 					<td>Sort lowest first <input type="checkbox" name="lowFirst" <%if(lowFirst != null){%>checked<%}%>></td>
 				</tr>
 				<tr>
 					<td><input type="radio" name="classType" value="firstClass" <%if(classType.equals("firstClass")){%>checked<%}%>/>First Class</td>
 					<td><input type="radio" name="classType" value="business" <%if(classType.equals("business")){%>checked<%}%>/>Business</td>
-					<td>Latest Arrival</td><td><input type="time" name="latestArrival" value=<%=latestArrival%>></td>
+					<td>Latest Arrival (HH:MM)</td><td><input type="time" name="latestArrival" value=<%=latestArrival%>></td>
 				</tr>
 				<tr>
 					<td><input type="radio" name="classType" value="economy" <%if(classType.equals("economy")){%>checked<%}%>/>Economy</td>
@@ -605,19 +643,41 @@
 		else{
 			
 	  
-	        //Try-catch price and stop conversions
+	        //Try-catch price and stop conversions, as well as 
 	        try{
+	    		
+	        	//Error checing
 	        	if (!maxPrice.isEmpty()){
 	        		double maxp = Double.parseDouble(maxPrice);
 	        	}
 	        	if (!maxStops.isEmpty()){
 	        		double maxs = Integer.parseInt(maxStops);
 	        	}
+	        	if (!departDate.isEmpty()){
+	        		LocalDate x = LocalDate.parse(departDate);
+	        	}
+	        	if (!returnDate.isEmpty()){
+	        		LocalDate x = LocalDate.parse(returnDate);
+	        	}
+	        	if (!earliestTakeoff.isEmpty()){
+	        		LocalTime x = LocalTime.parse(earliestTakeoff);
+	        	}
+	        	if (!latestTakeoff.isEmpty()){
+	        		LocalTime x = LocalTime.parse(latestTakeoff);
+	        	}
+	        	if (!earliestArrival.isEmpty()){
+	        		LocalTime x = LocalTime.parse(earliestArrival);
+	        	}
+	        	if (!latestArrival.isEmpty()){
+	        		LocalTime x = LocalTime.parse(latestArrival);
+	        	}
 	        	
 	        	ArrayList<ArrayList<Flight>> paths = getPaths(departure, destination, false, con);
 	        	
 	        	ArrayList<ArrayList<Flight>> filtered = filterOneWay(paths, departDate, flexibleDate, classType,
 	        			 maxPrice, maxStops, airline, earliestTakeoff, latestTakeoff, earliestArrival, latestArrival, con);
+	        	
+	        	filtered = filterInstance(filtered, departDate, returnDate, con);
 	        	
 	        	if (roundTrip != null){
 	        		ArrayList<ArrayList<Flight>> pathsBack = getPaths(destination, departure, true, con);
@@ -629,12 +689,14 @@
 	        				departDate, returnDate, classType, maxPrice, maxStops, con);
 	        		
 	        		filtered = doubleFiltered;
-	        		
 	        		//Sort
 	        		sort(filtered, sortType, lowFirst, classType, true);
 	        		
 	        		
 	        		
+	        		if (filtered.size() == 0){
+	        			out.println("No Flights Available");
+	        		}
 	        		//Display table
 	        		%>
 		        	<br>
@@ -671,7 +733,6 @@
 		        		int totDurationMinutes = (totDuration % 3600) / 60;
 		        		
 		        		String[] fields = {"", "Date", "Departs From", "Arrives At", "Airline", "Flight ID", "Departure Time", "Arrival Time"};
-
 		        		
 		        		
 		        		%>
@@ -725,6 +786,9 @@
 	        		//sort
 	        		sort(filtered, sortType, lowFirst, classType, false);
 	        		
+	        		if (filtered.size() == 0){
+	        			out.println("No Flights Available");
+	        		}
 	        		//Display table
 	        		%>
 		        	<br>
@@ -795,7 +859,7 @@
 	        	}
 	        
 	        catch(Exception ex){
-	        	out.println("Please enter valid numbers");
+	        	out.println("Please Enter Valid Input Formats");
 	        }
 	        
 	        

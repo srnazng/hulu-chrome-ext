@@ -39,24 +39,24 @@
 					<td><input type="radio" name="sortType" value="takeoff"/>Takeoff Time</td>
 				</tr>
 				<tr>
-					<td>Flexible Date</td><td><input type="checkbox" name="flexibleDate"></td>
-					<td>Earliest Takeoff</td><td><input type="time" name="earliestTakeoff"></td>
+					<td>Flexible Date </td><td><input type="checkbox" name="flexibleDate"></td>
+					<td>Earliest Takeoff (HH:SS)</td><td><input type="time" name="earliestTakeoff"></td>
 					<td><input type="radio" name="sortType" value="arrival"/>Arrival Time</td>
 				</tr>
 				<tr>
-					<td>Departure Date</td><td><input type="date" name="departDate"></td>
-					<td>Latest Takeoff</td><td><input type="time" name="latestTakeoff"></td>
+					<td>Departure Date (YYYY-MM-DD)</td><td><input type="date" name="departDate"></td>
+					<td>Latest Takeoff (HH:SS)</td><td><input type="time" name="latestTakeoff"></td>
 					<td><input type="radio" name="sortType" value="duration"/>Flight Duration</td>
 				</tr>
 				<tr>
-					<td>Return Date</td><td><input type="date" name="returnDate"></td>
-					<td>Earliest Arrival</td><td><input type="time" name="earliestArrival"></td>
+					<td>Return Date (YYYY-MM-DD)</td><td><input type="date" name="returnDate"></td>
+					<td>Earliest Arrival (HH:SS)</td><td><input type="time" name="earliestArrival"></td>
 					<td>Sort lowest first <input type="checkbox" name="lowFirst"></td>
 				</tr>
 				<tr>
 					<td><input type="radio" name="classType" value="firstClass" checked/>First Class</td>
 					<td><input type="radio" name="classType" value="business"/>Business</td>
-					<td>Latest Arrival</td><td><input type="time" name="latestArrival"></td>
+					<td>Latest Arrival (HH:SS)</td><td><input type="time" name="latestArrival"></td>
 				</tr>
 				<tr>
 					<td><input type="radio" name="classType" value="economy"/>Economy</td>

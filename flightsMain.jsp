@@ -348,9 +348,12 @@
 				//airline filter
 				if (!airline.isEmpty()){
 					airline = airline.toUpperCase();
+					boolean noAirline = true;
 					for (String a : airlines){
-						if (!a.equals(airline)) ok = false;
+						if (a.equals(airline)) noAirline = false;
 					}
+					if (noAirline) ok = false;
+					
 				}
 				
 				//Takeoff filter - connecting flights must have compatible times

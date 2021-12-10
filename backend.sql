@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS Travel_Reservation_System2;
-USE Travel_Reservation_System2;
+CREATE DATABASE IF NOT EXISTS Travel_Reservation_System;
+USE Travel_Reservation_System;
 
 CREATE TABLE IF NOT EXISTS `Account` (
 	`account_num` int unsigned NOT NULL,

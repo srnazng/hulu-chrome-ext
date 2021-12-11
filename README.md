@@ -2,7 +2,7 @@
 Jackson Lee (User Functionality pt. 1) \
 Serena Zeng (User Functionality pt. 2) \
 Jin Sebastian (Admin) \
-Xiang Zhang (Customer Representative) 
+Xiang Zhang (Customer Representative) \
 \
 Admin Credentials \
 Username: Admin \
